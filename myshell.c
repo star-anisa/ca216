@@ -31,7 +31,14 @@ explicit or implicit, is provided.
 #define MAX_ARGS 64                            // max # args
 #define SEPARATORS " \t\n"                     // token separators
 
+extern char **environ;
 
+void set_shell_env(){
+	if (setenv("SHELL", "/myshell", 1) == -1) {
+        perror("setenv");
+        exit(1);
+    }
+}
 
 int dir(){ // 'Dir' command, lists files in current directory
 	DIR *dir;
@@ -58,6 +65,13 @@ void pause(){ // 'Pause' command
 	getchar(); // Program will only continue if the enter key is pressed
 }
 
+void get_environs(){
+
+	for (int i = 0; environ[i] != NULL; i++){ // lists out each of the environ variables and their values one per line
+    	printf("%s\n",environ[i]);
+	}
+}
+
 void commands(char * args[MAX_ARGS], char ** arg){
 	/* check for internal/external command */
 	if (!strcmp(args[0],"clr")) { // "clear" command
@@ -73,8 +87,12 @@ void commands(char * args[MAX_ARGS], char ** arg){
 		dir();
 	}
 
-	else if (!strcmp(args[0],"pause")){
+	else if (!strcmp(args[0],"pause")){ // "pause" command
 		pause();
+	}
+
+	else if (!strcmp(args[0],"environ")){ // "environ" command
+		get_environs();
 	}
 
 	else{/* else pass command onto OS (or in this instance, print them out) */
@@ -86,12 +104,15 @@ void commands(char * args[MAX_ARGS], char ** arg){
 	}
 }
 
+
 int main (int argc, char ** argv)
 {
     char buf[MAX_BUFFER];                      // line buffer
     char * args[MAX_ARGS];                     // pointers to arg strings
     char ** arg;                               // working pointer thru args
     char * prompt = "==>" ;                    // shell prompt
+
+    set_shell_env();
 
     /* keep reading input until "quit" command or eof of redirected input */
     while (!feof(stdin)) { 
