@@ -27,6 +27,7 @@ explicit or implicit, is provided.
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <unistd.h>
 #define MAX_BUFFER 1024                        // max line buffer
 #define MAX_ARGS 64                            // max # args
 #define SEPARATORS " \t\n"                     // token separators
@@ -34,10 +35,15 @@ explicit or implicit, is provided.
 extern char **environ;
 
 void set_shell_env(){
-	if (setenv("SHELL", "/myshell", 1) == -1) {
-        perror("setenv");
-        exit(1);
-    }
+	char cwd[256];
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+      perror("getcwd() error");
+    else{
+		if (setenv("SHELL", cwd, 1) == -1) {
+			perror("setenv");
+			exit(1);
+		}
+	}
 }
 
 int dir(){ // 'Dir' command, lists files in current directory
@@ -60,7 +66,7 @@ int dir(){ // 'Dir' command, lists files in current directory
     closedir(dir);
 }
 
-void pause(){ // 'Pause' command
+void pause_process(){ // 'Pause' command
 	printf("Program paused.\nPress ENTER key to Continue\n");  
 	getchar(); // Program will only continue if the enter key is pressed
 }
@@ -88,7 +94,7 @@ void commands(char * args[MAX_ARGS], char ** arg){
 	}
 
 	else if (!strcmp(args[0],"pause")){ // "pause" command
-		pause();
+		pause_process();
 	}
 
 	else if (!strcmp(args[0],"environ")){ // "environ" command
