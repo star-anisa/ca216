@@ -35,10 +35,12 @@ explicit or implicit, is provided.
 extern char **environ;
 
 void display_prompt(){
-    char *prompt = " ==>" ;                     // shell prompt
+    char prompt[1024] = "";
+	char *arrow = " ==>";                	// shell prompt
 	char *pwd = getenv("PWD");
-	strcat(pwd, prompt);
-	fputs (pwd, stdout); // write prompt
+	strcat(prompt, pwd);
+	strcat(prompt, arrow);
+	fputs (prompt, stdout); 				// write prompt
 }
 
 void set_shell_env(char ** argv){
@@ -55,12 +57,17 @@ void set_shell_env(char ** argv){
 	}
 }
 
-int dir(){ // 'Dir' command, lists files in current directory
+int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in current directory
 	DIR *dir;
     struct dirent *entry;
 
-    // Open the directory that you are in right now
-    dir = opendir(".");
+	if (args[1] == NULL){
+    	// Open the directory that you are in right now
+    	dir = opendir(".");
+	}
+	else {
+		dir = opendir(args[1]);
+	}
     if (dir == NULL) {
         perror("opendir");
         return 1;
@@ -99,7 +106,7 @@ void commands(char * args[MAX_ARGS], char ** arg){
 	}
 
 	else if (!strcmp(args[0],"dir")){   //"dir" command
-		dir();
+		dir(args);
 	}
 
 	else if (!strcmp(args[0],"pause")){ // "pause" command
