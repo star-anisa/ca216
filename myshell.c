@@ -34,6 +34,19 @@ explicit or implicit, is provided.
 
 extern char **environ;
 
+void change_directory(char * args[MAX_ARGS]){
+	if(args[1] == NULL){
+        int destination = chdir(getenv("HOME"));
+        if (destination < 0){
+            perror("chdir() error");
+		}
+		if (setenv("PWD",getenv("HOME"), 1) == -1) { // sets the eniron name PWD to the value in "HOME"
+			perror("setenv() error");
+			exit(1);
+		}
+	}
+}
+
 void display_prompt(){
     char prompt[1024] = "";
 	char *arrow = " ==>";                	// shell prompt
@@ -115,6 +128,10 @@ void commands(char * args[MAX_ARGS], char ** arg){
 
 	else if (!strcmp(args[0],"environ")){ // "environ" command
 		get_environs();
+	}
+
+	else if (!strcmp(args[0],"cd")){ // "change directory" command
+		change_directory(args);
 	}
 
 	else{/* else pass command onto OS (or in this instance, print them out) */
