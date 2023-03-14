@@ -29,17 +29,26 @@ explicit or implicit, is provided.
 #include <dirent.h>
 #include <unistd.h>
 #define MAX_BUFFER 1024                        // max line buffer
-#define MAX_ARGS 64                            // max # args
+#define MAX_ARGS 200                            // max # args
 #define SEPARATORS " \t\n"                     // token separators
 
 extern char **environ;
 
-void set_shell_env(){
+void display_prompt(){
+    char *prompt = " ==>" ;                     // shell prompt
+	char *pwd = getenv("PWD");
+	strcat(pwd, prompt);
+	fputs (pwd, stdout); // write prompt
+}
+
+void set_shell_env(char ** argv){
 	char cwd[256];
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
+    if (getcwd(cwd, sizeof(cwd)) == NULL) // gets the name of the current working directory and stores it in cwd
       perror("getcwd() error");
     else{
-		if (setenv("SHELL", cwd, 1) == -1) {
+		strcat(cwd, "/");
+		strcat(cwd, argv[0]);
+		if (setenv("SHELL", cwd, 1) == -1) { // swets the eniron name SHELL to the value in cwd
 			perror("setenv");
 			exit(1);
 		}
@@ -116,14 +125,13 @@ int main (int argc, char ** argv)
     char buf[MAX_BUFFER];                      // line buffer
     char * args[MAX_ARGS];                     // pointers to arg strings
     char ** arg;                               // working pointer thru args
-    char * prompt = "==>" ;                    // shell prompt
 
-    set_shell_env();
+    set_shell_env(argv);
 
     /* keep reading input until "quit" command or eof of redirected input */
     while (!feof(stdin)) { 
         /* get command line from input */
-        fputs (prompt, stdout); // write prompt
+		display_prompt();
 
         if (fgets (buf, MAX_BUFFER, stdin )) { // read a line
             /* tokenize the input into args array */
