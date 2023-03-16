@@ -1,51 +1,56 @@
-// will change credits to say that it was modified from the original creators code
-
+// Anisa Hoxha, 21413586
 /* 
-strtokeg - skeleton shell using strtok to parse command line
-usage:
-strtokeg
-reads in a line of keyboard input at a time, parsing it into
-tokens that are separated by white spaces (set by #define SEPARATORS).
-can use redirected input if the first token is a recognised internal command, 
-then that command is executed. otherwise the tokens are printed on the display.
-internal commands:
-clear - clears the screen
-quit - exits from the program
-********************************************************************
-version: 1.0
-date:    December 2003
-author:  Ian G Graham
-School of Information Technology
-Griffith University, Gold Coast
-ian.graham@griffith.edu.au
-copyright (c) Ian G Graham, 2003. All rights reserved.
-This code can be used for teaching purposes, but no warranty,
-explicit or implicit, is provided.
-*******************************************************************/
+I declare that this material, which I now submit for assessment,
+is entirely my own work and has not been taken from the work of others
+save and to the extent that such work 
+has been cited and acknowledged within the text of my work.
+*/
 
+//////////////////////////////////////////////////
+
+// Incudes 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <unistd.h>
+
+
+// Global Variables
 #define MAX_BUFFER 1024                        // max line buffer
-#define MAX_ARGS 200                            // max # args
+#define MAX_ARGS 200                           // max # args
 #define SEPARATORS " \t\n"                     // token separators
 
 extern char **environ;
 
-void change_directory(char * args[MAX_ARGS]){
+void commands(char * args[MAX_ARGS]);
+
+int change_directory(char * args[MAX_ARGS]){
+	char cwd[256];
 	if(args[1] == NULL){
-        int destination = chdir(getenv("HOME"));
-        if (destination < 0){
+        //int destination = chdir(getenv("HOME"));
+        if (chdir(getenv("HOME")) < 0){
             perror("chdir() error");
+			return 1; 
 		}
 		if (setenv("PWD",getenv("HOME"), 1) == -1) { // sets the eniron name PWD to the value in "HOME"
 			perror("setenv() error");
-			exit(1);
+			return 1;
+		}
+	}
+	else{
+		if (chdir(args[1]) < 0){
+            perror("chdir() error");
+			return 1;
+		}
+		if (setenv("PWD", getcwd(cwd, sizeof(cwd)), 1) == -1) { // sets the eniron name PWD to the path in args[1]
+			perror("setenv() error");
+			return 1;
 		}
 	}
 }
+// code adapted from: https://www.ibm.com/docs/en/zos/2.4.0?topic=functions-chdir-change-working-directory 
+
 
 void display_prompt(){
     char prompt[1024] = "";
@@ -56,22 +61,25 @@ void display_prompt(){
 	fputs (prompt, stdout); 				// write prompt
 }
 
+
 void set_shell_env(char ** argv){
 	char cwd[256];
-    if (getcwd(cwd, sizeof(cwd)) == NULL) // gets the name of the current working directory and stores it in cwd
-      perror("getcwd() error");
+    if (getcwd(cwd, sizeof(cwd)) == NULL){ // gets the name of the current working directory and stores it in cwd
+		perror("getcwd() error");
+		return;
+	}
     else{
-		strcat(cwd, "/");
-		strcat(cwd, argv[0]);
+		strcat(cwd, "/myshell");
 		if (setenv("SHELL", cwd, 1) == -1) { // swets the eniron name SHELL to the value in cwd
 			perror("setenv");
-			exit(1);
+			return;
 		}
 	}
 }
 
-int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in current directory
-	DIR *dir;
+
+int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in a given directory
+	DIR *dir;					// If no directory given, defualts to current directory
     struct dirent *entry;
 
 	if (args[1] == NULL){
@@ -94,11 +102,16 @@ int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in current directo
     // Close the directory
     closedir(dir);
 }
+// code adapted from: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+
 
 void pause_process(){ // 'Pause' command
 	printf("Program paused.\nPress ENTER key to Continue\n");  
 	getchar(); // Program will only continue if the enter key is pressed
 }
+// Pause program until enter key is pressed
+// code adapted from: https://stackoverflow.com/questions/18801483/press-any-key-to-continue-function-in-c 
+
 
 void get_environs(){
 
@@ -107,7 +120,39 @@ void get_environs(){
 	}
 }
 
-void commands(char * args[MAX_ARGS], char ** arg){
+void batchmode(char const *file){
+    char *args[MAX_ARGS];
+    char line[MAX_BUFFER];
+    FILE *fptr;
+    long pos = 0;
+
+    if ((fptr = fopen(file, "r")) == NULL) {
+        printf("Error! File cannot be opened.");
+        // Program exits if the file pointer returns NULL.
+        exit(1);
+    }
+
+    // reads text until newline is encountered
+    while (fgets(line, MAX_BUFFER, fptr)) {
+        args[0] = strtok(line, SEPARATORS);   // tokenise input
+
+        int i = 0;
+        while (args[i] != NULL && i < MAX_ARGS - 1) {
+            i++;
+            args[i] = strtok(NULL, SEPARATORS);
+        }
+
+        if (args[0]) {                     // if there's anything there
+            commands(args);
+        }
+    }
+
+    fclose(fptr);
+    return;
+}
+
+void commands(char * args[MAX_ARGS]){
+	char **arg;
 	/* check for internal/external command */
 	if (!strcmp(args[0],"clr")) { // "clear" command
 		system("clear");
@@ -144,6 +189,23 @@ void commands(char * args[MAX_ARGS], char ** arg){
 }
 
 
+
+
+/* 
+The following code has been heavily modified from Ian G Graham's source code.
+details below.
+********************************************************************
+version: 1.0
+date:    December 2003
+author:  Ian G Graham
+School of Information Technology
+Griffith University, Gold Coast
+ian.graham@griffith.edu.au
+copyright (c) Ian G Graham, 2003. All rights reserved.
+This code can be used for teaching purposes, but no warranty,
+explicit or implicit, is provided.
+*******************************************************************/
+
 int main (int argc, char ** argv)
 {
     char buf[MAX_BUFFER];                      // line buffer
@@ -157,6 +219,11 @@ int main (int argc, char ** argv)
         /* get command line from input */
 		display_prompt();
 
+		if (argc > 1){
+			batchmode(argv[1]);
+			exit(0);
+		}
+
         if (fgets (buf, MAX_BUFFER, stdin )) { // read a line
             /* tokenize the input into args array */
             arg = args;
@@ -166,8 +233,9 @@ int main (int argc, char ** argv)
 
             // last entry will be NULL 
             if (args[0]) {                     // if there's anything there
-				commands(args, arg);
+				commands(args);
             }
+
         }
     }
     return 0; 
