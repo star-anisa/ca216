@@ -25,22 +25,20 @@ extern char **environ;
 
 void commands(char * args[MAX_ARGS]);
 
+void echo(char *args[MAX_ARGS]){
+	for (int i = 1; args[i] != NULL; i++){
+		printf("%s\n", args[i]);
+	}
+}
+
 int change_directory(char * args[MAX_ARGS]){
 	char cwd[256];
 	if(args[1] == NULL){
-        //int destination = chdir(getenv("HOME"));
-        if (chdir(getenv("HOME")) < 0){
-            perror("chdir() error");
-			return 1; 
-		}
-		if (setenv("PWD",getenv("HOME"), 1) == -1) { // sets the eniron name PWD to the value in "HOME"
-			perror("setenv() error");
-			return 1;
-		}
+		printf("Current Working Directory: %s\n", getcwd(cwd, sizeof(cwd)));
 	}
 	else{
 		if (chdir(args[1]) < 0){
-            perror("chdir() error");
+			perror("chdir() error");
 			return 1;
 		}
 		if (setenv("PWD", getcwd(cwd, sizeof(cwd)), 1) == -1) { // sets the eniron name PWD to the path in args[1]
@@ -80,19 +78,19 @@ void set_shell_env(char ** argv){
 
 int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in a given directory
 	DIR *dir;					// If no directory given, defualts to current directory
-    struct dirent *entry;
+	struct dirent *entry;
 
 	if (args[1] == NULL){
-    	// Open the directory that you are in right now
-    	dir = opendir(".");
+		// Open the directory that you are in right now
+		dir = opendir(".");
 	}
 	else {
 		dir = opendir(args[1]);
 	}
-    if (dir == NULL) {
-        perror("opendir");
-        return 1;
-    }
+	if (dir == NULL) {
+		perror("opendir");
+		return 1;
+	}
 
     // Read the directory entries
     while ((entry = readdir(dir)) != NULL) {
@@ -177,6 +175,10 @@ void commands(char * args[MAX_ARGS]){
 
 	else if (!strcmp(args[0],"cd")){ // "change directory" command
 		change_directory(args);
+	}
+
+	else if (!strcmp(args[0],"echo")){ // "change directory" command
+		echo(args);
 	}
 
 	else{/* else pass command onto OS (or in this instance, print them out) */
