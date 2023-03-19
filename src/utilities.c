@@ -18,9 +18,10 @@ void display_prompt(){
 	strcat(prompt, pwd);
 	strcat(prompt, arrow);
 	fputs (prompt, stdout); 				// write prompt
+	free(arrow);
 }
 
-void set_shell_env(char ** argv){
+void set_shell_env(){
 	char cwd[256];
     if (getcwd(cwd, sizeof(cwd)) == NULL){ // gets the name of the current working directory and stores it in cwd
 		perror("getcwd() error");

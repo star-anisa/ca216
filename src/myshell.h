@@ -24,7 +24,7 @@ extern char **environ;
 
 // Function Prototypes
 void display_prompt();
-void set_shell_env(char ** argv);
+void set_shell_env();
 
 void batchmode(char const *file);
 
