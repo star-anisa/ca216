@@ -23,19 +23,19 @@ has been cited and acknowledged within the text of my work.
 extern char **environ;
 
 // Function Prototypes
-void display_prompt();
-void set_shell_env();
+void display_prompt(); // displays prompt of the pwd and arrow on terminal
+void set_shell_env(); // sets shell environment to [pwd]/myshell
 
-void batchmode(char const *file);
+void batchmode(char const *file); // reads lines from file on commandline and passes to commands
 
-void tokenise();
-void commands(char * args[MAX_ARGS]);
+void tokenise(); // makes standard input into tokens
+void commands(char * args[MAX_ARGS]); // uses strcmp to see which command is being invoked and passing to the appropriate function
 
-void echo(char *args[MAX_ARGS]);
-int change_directory(char * args[MAX_ARGS]);
-int dir(char * args[MAX_ARGS]);
-void pause_process();
-void get_environs();
-void quit_process();
-void clear_terminal();
-int help();
+void echo(char *args[MAX_ARGS]); // echos arguments one per line
+int change_directory(char * args[MAX_ARGS]); // changes directory to argument, if non given prints cwd
+int dir(char * args[MAX_ARGS]); // lists contents of argument, if no given defaults to current directory
+void pause_process(); // pauses shell until the enter key is pressed
+void get_environs(); // prints all the environment variables
+void quit_process(); // quites the shell
+void clear_terminal(); // clears the terminal
+int help(); // displays manual
