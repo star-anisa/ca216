@@ -13,19 +13,20 @@ has been cited and acknowledged within the text of my work.
 
 int main (int argc, char ** argv)
 {
-    set_shell_env(argv);
+	set_shell_env(argv);
 
 	if (argc > 1){
 		batchmode(argv[1]);
 		exit(0);
 	}
 
-    /* keep reading input until "quit" command or eof of redirected input */
-    while (!feof(stdin)) { 
-        /* get command line from input */
+	/* keep reading input until "quit" command or eof of redirected input */
+	while (!feof(stdin)) { 
+		//displays pwd and arrow as prompt
 		display_prompt();
+		//get input from command line and make into tokens
 		tokenise();
 
-    }
-    return 0; 
+	}
+	return 0; 
 }

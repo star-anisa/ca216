@@ -1,0 +1,95 @@
+Manual for Myshell
+
+NAME
+	Myshell
+
+SYNOPSIS
+	myshell [command_string | file]
+
+DESCRIPTION
+	Myshell is a command language interpreter that executes commands read from standard input or from a file.
+
+ARGUMENTS
+	If any arguments exist, the first argument is assumed to be the name of a file containing shell commands. Myshell reads and executes commands from this file, then exits. An attempt is first made to open the file in the current directory, and, if no file is found then Myshell terminates with an exit status of 1. If all commands are executed successfully, the exit status is 0.
+
+INVOCATION
+	An interactive shell is started when no arguments are specified. A prompt, consisting of the user's current working directory, is shown to the user, where commands can be entered and subsequently executed.
+
+USAGE
+	Start the interactive shell by running the program without any arguments. Enter commands into the prompt and they will be executed. 
+
+ENVIRONMENT
+	Environment variables are variables whose value are set outside the program, this is usually built in to the operating system itself.
+	Environment variables are of the format KEY="value string", and commonly used environment variables are USER, PWD, and SHELL.
+	These store the information on the current logged-in user, current working directory and the current shell respectively.
+	In most shell's these can be called with the name of the environment variable preceded by a "$", for example $USER.
+
+SHELL BUILTIN COMMANDS
+	Myshell contains many built-in commands, upon user input, Myshell checks if one of these in-built commands has been entered. If so, the corresponding command is executed.
+	All other command line input is interpreted as program invocation.
+
+	The following is a list of the in-built commands and their functions:
+
+	cd [directory]	
+			Change directory to the first argument. If the given directory does not exist, the user is notified.
+			If succesful, the return value is 0, otherwise it is 1.
+			If there is argument given, Myshell prints the current working directory to standard output.
+	
+	clr
+			Clears the terminal screen.
+
+	dir [directory]
+			Lists the contents of the directory given in the first argument.
+			Otherwise, lists current directory's contents if no arguments are given
+
+	environ         
+			Lists all current environment variables.
+
+	echo [arg ...]
+			Echoes strings given as an argument to standard output.
+			Each argument is printed one per line.
+
+	help            
+			Prints this manual to standard output.
+
+	pause
+			Pauses operation of the shell until the Enter key is pressed.
+
+	quit
+			Exits the shell with an exit status of 0.
+
+I/O REDIRECTION
+	I/O redirection is a feature in Myshell. I/O redirection allows you to change the standard input (stdin) and standard output (stdout) when executing a command on the terminal.
+
+	REDIRECTING INPUT
+		Redirection of input causes the file whose name results from the expansion of word to be opened for reading by Myshell.
+			./myshell < word
+	
+	REDIRECTING OUTPUT
+		Redirection of output causes the file whose name results from the expansion of word to be opened for writing on file descriptor n. If the file does not exist it is created; if it does exist it is truncated to zero size.
+			./myshell > word
+
+	APPENDING REDIRECTED OUTPUT
+		Redirection of output in this fashion causes the file whose name results from the expansion of word to be opened for appending on file descriptor n. If the file does not exist it is created.
+			./myshell >> word
+
+BACKGROUND AND FOREGROUND PROCCESSES
+	All commands that are currently running on Myshell are known as processes. Processes exist in a parent-child hierarchy where a child process is the product of a parent process. A parent process can have multiple children but a child process only ever has one parent. Each process has an associated process identification number (PID Number). Calling the same process multiple times gives it a new PID every time.
+	A foreground process is started by the user and it has access to the terminal. You cannot run multiple foreground processes at once and you must wait for the current one to finish before moving on to the next.
+	A background process is typically ran with very little user input, and the user keeps their access to the terminal while it is running. You can have multiple background processes. 
+	All processes in Myshell are run in the foreground by default. To run a process in the background, place an ampersand (&) at the end of the command name that you use to start the process
+
+REFERENCES
+	GNU, “Bash(1) - linux man page,” bash(1): GNU Bourne-Again SHell - Linux man page, 1989. [Online]. Available: https://linux.die.net/man/1/bash. [Accessed: 19-Mar-2023].
+
+	“IBM Documentation - Processes,” Processes. [Online]. Available: https://www.ibm.com/docs/en/aix/7.1?topic=processes-. [Accessed: 19-Mar-2023]. 
+
+	W. Joy, “An introduction to the C shell,” An Introduction to the C shell. [Online]. Available: https://docs-archive.freebsd.org/44doc/usd/04.csh/paper.html. [Accessed: 19-Mar-2023]. 
+
+	G. A. Junipero Rodriguez-­Rivera and J. Ennen, “Chapter 5 - Writing Your Own Shell ,” An Introduction to Systems Programming: a Hands ­on Approach, 2014. 
+
+ANTI-PLAGARIAM POLICY
+	// Anisa Hoxha, 21413586
+	/* 
+	I declare that this material, which I now submit for assessment, is entirely my own work and has not been taken from the work of others save and to the extent that such work has been cited and acknowledged within the text of my work.
+	*/

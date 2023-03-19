@@ -12,7 +12,7 @@ has been cited and acknowledged within the text of my work.
 #include "myshell.h"
 
 void display_prompt(){
-    char prompt[1024] = "";
+	char prompt[1024] = "";
 	char *arrow = " ==>";                	// shell prompt
 	char *pwd = getenv("PWD");
 	strcat(prompt, pwd);
@@ -22,11 +22,11 @@ void display_prompt(){
 
 void set_shell_env(){
 	char cwd[256];
-    if (getcwd(cwd, sizeof(cwd)) == NULL){ // gets the name of the current working directory and stores it in cwd
+	if (getcwd(cwd, sizeof(cwd)) == NULL){ // gets the name of the current working directory and stores it in cwd
 		perror("getcwd() error");
 		return;
 	}
-    else{
+	else{
 		strcat(cwd, "/myshell");
 		if (setenv("SHELL", cwd, 1) == -1) { // swets the eniron name SHELL to the value in cwd
 			perror("setenv");
@@ -52,16 +52,16 @@ explicit or implicit, is provided.
 *******************************************************************/
 
 void batchmode(char const *file){
-    char buf[MAX_BUFFER];
-    FILE *fptr;
+	char buf[MAX_BUFFER];
+	FILE *fptr;
 	char * args[MAX_ARGS];                     // pointers to arg strings
 	char ** arg; 
 
-    if ((fptr = fopen(file, "r")) == NULL) {
-        printf("Error! File cannot be opened.");
-        // Program exits if the file pointer returns NULL.
-        exit(1);
-    }
+	if ((fptr = fopen(file, "r")) == NULL) {
+		printf("Error! File cannot be opened.");
+		// Program exits if the file pointer returns NULL.
+		exit(1);
+	}
 
 	// tokenising input from file
 	if (fgets (buf, MAX_BUFFER, fptr)) { // read a line from file
@@ -82,8 +82,8 @@ void batchmode(char const *file){
 
 void tokenise(){    
 	char buf[MAX_BUFFER];                      // line buffer
-    char * args[MAX_ARGS];                     // pointers to arg strings
-    char ** arg;                               // working pointer thru args
+	char * args[MAX_ARGS];                     // pointers to arg strings
+	char ** arg;                               // working pointer thru args
 
 	if (fgets (buf, MAX_BUFFER, stdin )) { // read a line
 		/* tokenize the input into args array */
@@ -99,7 +99,7 @@ void tokenise(){
 			commands(args);
 		}
 
-    }
+	}
 }
 
 void commands(char * args[MAX_ARGS]){
@@ -130,27 +130,31 @@ void commands(char * args[MAX_ARGS]){
 		change_directory(args);
 	}
 
-	else if (!strcmp(args[0],"echo")){ // "change directory" command
+	else if (!strcmp(args[0],"echo")){ // "echo" command
 		echo(args);
 	}
 
+	else if (!strcmp(args[0],"help")){ // "help" command
+		help();
+	}
+
 	else{// else pass command onto OS
-		//arg = args; 
 		int pid = fork();
-    	if (pid < 0){
-        	fprintf(stderr, "Could not Fork\n");
-        	return;
+		if (pid < 0){
+			fprintf(stderr, "Could not Fork\n");
+			return;
 		}
-    	else if (pid == 0){
+		else if (pid == 0){
+			//printf("\n");
 			execvp(args[0], args);
 		}
 	}
 }
 
 // The following are all the internal commands
-int change_directory(char * args[MAX_ARGS]){
+int change_directory(char * args[MAX_ARGS]){ // 'cd' command
 	char cwd[256];
-	if(args[1] == NULL){
+	if(args[1] == NULL){ // prints current working directory if no other argument given
 		printf("Current Working Directory: %s\n", getcwd(cwd, sizeof(cwd)));
 	}
 	else{
@@ -171,7 +175,7 @@ void clear_terminal(){
 	system("clear");
 }
 
-int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in a given directory
+int dir(char * args[MAX_ARGS]){ // 'Dir' command
 	DIR *dir;					// If no directory given, defualts to current directory
 	struct dirent *entry;
 
@@ -187,33 +191,49 @@ int dir(char * args[MAX_ARGS]){ // 'Dir' command, lists files in a given directo
 		return 1;
 	}
 
-    // Read the directory entries
-    while ((entry = readdir(dir)) != NULL) {
-        printf("%s\n", entry->d_name);
-    }
+	// Read the directory entries
+	while ((entry = readdir(dir)) != NULL) {
+		printf("%s\n", entry->d_name);
+	}
 
-    // Close the directory
-    closedir(dir);
+	// Close the directory
+	closedir(dir);
 	return 0;
 }
 // code adapted from: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
 
-void get_environs(){
+void get_environs(){ //'Environ' command
 
 	for (int i = 0; environ[i] != NULL; i++){ // lists out each of the environ variables and their values one per line
-    	printf("%s\n",environ[i]);
+		printf("%s\n",environ[i]);
 	}
 }
 
-void echo(char *args[MAX_ARGS]){
-	for (int i = 1; args[i] != NULL; i++){
+void echo(char *args[MAX_ARGS]){ // 'Echo' command
+	for (int i = 1; args[i] != NULL; i++){ // prints each argument after 'echo', one per line
 		printf("%s\n", args[i]);
 	}
 }
 
-// void help(){
-// 	pass
-// }
+int help(){
+	char line[1000]; // Define a buffer for reading lines
+	int line_count = 0; // Initialize the line count to zero
+
+	FILE *file = fopen("../manual/readme", "r"); // Open the file for reading
+	if (file == NULL) {
+		printf("Unable to open file\n");
+		return 1;
+	}
+
+	while (fgets(line, sizeof(line), file)) {
+		printf("%s", line); // Print the current line
+
+		line_count++; // Increment the line count
+	}
+
+	fclose(file); // Close the file
+	return 0;
+}
 
 void pause_process(){ // 'Pause' command
 	printf("Program paused.\nPress ENTER key to Continue\n");
@@ -222,6 +242,6 @@ void pause_process(){ // 'Pause' command
 // Pause program until enter key is pressed
 // code adapted from: https://stackoverflow.com/questions/18801483/press-any-key-to-continue-function-in-c 
 
-void quit_process(){
+void quit_process(){ // 'Quit' command
 	exit(0);
 }

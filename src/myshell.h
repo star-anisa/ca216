@@ -38,3 +38,4 @@ void pause_process();
 void get_environs();
 void quit_process();
 void clear_terminal();
+int help();
