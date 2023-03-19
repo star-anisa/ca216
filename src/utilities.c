@@ -111,6 +111,7 @@ void commands(char * args[MAX_ARGS]){
 	}
 
 	else if (!strcmp(args[0],"quit")){   // "quit" command
+		args = NULL;
 		quit_process();
 	}
 
@@ -198,6 +199,8 @@ int dir(char * args[MAX_ARGS]){ // 'Dir' command
 
 	// Close the directory
 	closedir(dir);
+	dir = NULL;
+	entry = NULL;
 	return 0;
 }
 // code adapted from: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
@@ -232,6 +235,7 @@ int help(){
 	}
 
 	fclose(file); // Close the file
+	file = NULL;
 	return 0;
 }
 
