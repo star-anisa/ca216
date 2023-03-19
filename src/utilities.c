@@ -18,7 +18,6 @@ void display_prompt(){
 	strcat(prompt, pwd);
 	strcat(prompt, arrow);
 	fputs (prompt, stdout); 				// write prompt
-	free(arrow);
 }
 
 void set_shell_env(){
@@ -104,7 +103,7 @@ void tokenise(){
 }
 
 void commands(char * args[MAX_ARGS]){
-	char **arg;
+	//char **arg;
 
 	/* check for internal/external command */
 	if (!strcmp(args[0],"clr")) { // "clear" command
@@ -135,11 +134,15 @@ void commands(char * args[MAX_ARGS]){
 		echo(args);
 	}
 
-	else{/* else pass command onto OS (or in this instance, print them out) */
-		arg = args;
-		while (*arg) {
-			fprintf(stdout,"%s ",*arg++);
-			fputs ("\n", stdout);
+	else{// else pass command onto OS
+		//arg = args; 
+		int pid = fork();
+    	if (pid < 0){
+        	fprintf(stderr, "Could not Fork\n");
+        	return;
+		}
+    	else if (pid == 0){
+			execvp(args[0], args);
 		}
 	}
 }
